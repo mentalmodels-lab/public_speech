@@ -19,6 +19,7 @@
     .btn-primary:disabled { background: #ddd; color: #999; cursor: not-allowed; }
     .btn-ghost { padding: 11px 18px; border-radius: 8px; border: 0.5px solid #ccc; background: transparent; color: #666; font-size: 14px; }
     .btn-ghost:hover { background: #f0ede8; }
+    .btn-outline { width: 100%; padding: 13px; font-size: 14px; font-weight: 600; border-radius: 10px; background: transparent; transition: all 0.15s; }
     .progress-bar { height: 4px; background: #e8e5e0; border-radius: 4px; overflow: hidden; }
     .progress-fill { height: 100%; border-radius: 4px; transition: width 0.3s ease; }
     .option-btn { flex: 1; padding: 8px 4px; border-radius: 7px; border: 1px solid #e0ddd6; background: transparent; display: flex; flex-direction: column; align-items: center; gap: 3px; transition: all 0.15s; }
@@ -28,6 +29,10 @@
     .tab-btn.active { background: #fff; color: #1a1a1a; border-bottom-color: #534AB7; }
     input[type="text"] { width: 100%; padding: 14px 16px; font-size: 16px; border: 1.5px solid #ddd; border-radius: 10px; font-family: inherit; outline: none; transition: border-color 0.2s; }
     input[type="text"]:focus { border-color: #534AB7; }
+    .check-row { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 0.5px solid #f0ede8; }
+    .check-row:last-child { border-bottom: none; }
+    .checkbox { width: 22px; height: 22px; border-radius: 6px; border: 2px solid #ddd; background: #fff; flex-shrink: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s; margin-top: 1px; }
+    .checkbox.checked { border-color: #1D9E75; background: #1D9E75; }
   </style>
 </head>
 <body>
@@ -40,31 +45,76 @@
     const DIMS = [
       { id: "anxiety", name: "Anxiety Management", color: "#7F77DD", bg: "#EEEDFE", short: "Anxiety", tagline: "Taming your nerves", desc: "How well you manage speaking anxiety before and during a presentation",
         questions: ["Before presenting, I can keep my nerves from interfering with my performance.", "If I blank out or lose my place mid-speech, I recover quickly and continue.", "I use specific techniques (breathing, positive self-talk) to calm myself before speaking."],
-        strategies: { low: ["Name your anxiety type: Is it physical (shaking, sweating), emotional (dread), or mental (going blank)? Each type needs a different fix.", "Try 4-7-8 breathing: inhale 4 sec, hold 7, exhale 8. Do this 3 times before you speak.", "Build your personal AMP (Anxiety Management Plan): pick 2 techniques and practice them until they're automatic."], mid: ["Reframe anxiety as excitement — both feel physiologically identical. Saying 'I'm excited' actually changes your performance.", "Use a structured outline so you always have a mental map. You can't get lost if you know where you're going."], high: ["You manage anxiety well! Channel that energy into dynamic delivery — let your confidence show through vocal variety and gestures.", "Try teaching a classmate one of your techniques. Teaching deepens your own mastery."] }
+        strategies: { low: ["Name your anxiety type: Is it physical (shaking, sweating), emotional (dread), or mental (going blank)? Each type needs a different fix.", "Try 4-7-8 breathing: inhale 4 sec, hold 7, exhale 8. Do this 3 times before you speak.", "Build your AMP (Anxiety Management Plan): pick 2 techniques and practice them until they're automatic."], mid: ["Reframe anxiety as excitement — both feel physiologically identical. Saying 'I'm excited' actually changes your performance.", "Use a structured outline so you always have a mental map. You can't get lost if you know where you're going."], high: ["You manage anxiety well! Channel that energy into dynamic delivery — let your confidence show through vocal variety and gestures.", "Teach a classmate one of your techniques. Teaching deepens your own mastery."] },
+        weeklyDrills: ["Every morning: do 4-7-8 breathing for 3 rounds (inhale 4, hold 7, exhale 8). Takes less than 2 minutes.", "Before each class this week, stand in a confident posture privately for 2 minutes — feet wide, chin up.", "Record yourself speaking for 1 minute on any topic. Watch it back once without judgment."],
+        checklistItems: { low: "I will take 3 slow breaths and say 'I'm ready' to myself before I begin.", mid: "If nerves hit, I'll remind myself: this feeling means I care — and that's a strength.", high: "I'll channel my energy into enthusiasm. Nerves = fuel." }
       },
       { id: "structure", name: "Structure & Organization", color: "#1D9E75", bg: "#E1F5EE", short: "Structure", tagline: "Organizing your ideas", desc: "How clearly and logically you arrange your ideas — even on the spot",
         questions: ["I can organize my ideas into a clear beginning, middle, and end — even spontaneously.", "I use smooth transitions so my audience can easily follow my flow of ideas.", "When I get an unexpected question, I can quickly structure a clear, organized answer."],
-        strategies: { low: ["Master 'What → So What → Now What': State your point, explain why it matters, say what should happen next.", "Never use full-sentence notes. Write only 3–5 keyword anchors per section.", "Practice 60-second structured answers to random questions with a partner."], mid: ["'Headline first': lead with your conclusion, then explain. Audiences remember what they hear first and last.", "Match your structure to your goal: Problem-Solution for persuasion, Chronological for stories."], high: ["Excellent structure! Now make it invisible — your audience should feel guided without noticing.", "Try non-linear openings: start with a bold claim or provocative question, then build the case."] }
+        strategies: { low: ["Master 'What → So What → Now What': State your point, explain why it matters, say what should happen next.", "Never use full-sentence notes. Write only 3–5 keyword anchors per section.", "Practice 60-second structured answers to random questions with a partner."], mid: ["'Headline first': lead with your conclusion, then explain. Audiences remember what they hear first and last.", "Match your structure to your goal: Problem-Solution for persuasion, Chronological for stories."], high: ["Excellent structure! Now make it invisible — your audience should feel guided without noticing.", "Try non-linear openings: start with a bold claim, then build the case."] },
+        weeklyDrills: ["3 times this week: pick any topic and give a 60-second 'What → So What → Now What' answer out loud.", "For your next presentation: write your outline using only 5 keywords — no full sentences allowed.", "Ask a friend to ask you a surprise question. Give yourself 10 seconds to structure your answer before speaking."],
+        checklistItems: { low: "I have my 3 keyword anchors ready. I don't need every word memorized.", mid: "I'll lead with my main point — headline first, explanation after.", high: "My structure is solid. I'll trust it and speak naturally." }
       },
       { id: "eyecontact", name: "Eye Contact & Engagement", color: "#378ADD", bg: "#E6F1FB", short: "Eye Contact", tagline: "Connecting with your audience", desc: "How well you make eye contact and actively involve the people you're speaking to",
         questions: ["I make consistent, natural eye contact with different people throughout my audience.", "I engage my audience by asking questions or inviting their active participation.", "I can sense when my audience is losing interest and adjust what I'm doing."],
-        strategies: { low: ["Practice 'one thought, one look': hold eye contact with one person for one complete thought, then shift.", "Divide the room into 3 zones (left, center, right) and consciously visit each zone.", "Ask at least one genuine question per presentation. Questions shift focus from you to them."], mid: ["When answering a question, start with the questioner, then expand your gaze to the whole room.", "Respond to audience signals: nods, frowns, and leaning forward are live feedback — acknowledge them."], high: ["Strong audience connection! Now let your face genuinely react to what your audience does.", "Use 'call-backs': refer to something an audience member said earlier. It shows you truly listened."] }
+        strategies: { low: ["Practice 'one thought, one look': hold eye contact with one person for one complete thought, then shift.", "Divide the room into 3 zones (left, center, right) and consciously visit each zone.", "Ask at least one genuine question per presentation. Questions shift focus from you to them."], mid: ["When answering a question, start with the questioner, then expand your gaze to the whole room.", "Respond to audience signals: nods, frowns, and leaning forward are live feedback — acknowledge them."], high: ["Strong audience connection! Now let your face genuinely react to what your audience does.", "Use 'call-backs': refer to something an audience member said earlier. It shows you truly listened."] },
+        weeklyDrills: ["In your next 5 conversations: practice 'one thought, one look' — hold eye contact for one full sentence, then naturally shift.", "Watch one presentation video online. Count how many times the speaker breaks eye contact unnecessarily.", "Practice in a mirror: say 10 sentences while maintaining 'eye contact' with your own reflection the whole time."],
+        checklistItems: { low: "I will look at one person per thought — aiming for at least 5 different people.", mid: "I'll cover all three audience zones: left, center, right — no one gets left out.", high: "I'll use eye contact to build real connection, not just coverage." }
       },
       { id: "voice", name: "Voice & Delivery", color: "#D85A30", bg: "#FAECE7", short: "Voice", tagline: "Speaking with impact", desc: "How effectively you use volume, pace, tone, and pausing to deliver your message",
         questions: ["I speak with enough volume and clarity that everyone in the room can hear me easily.", "I use deliberate pauses instead of filling silence with 'um', 'uh', or 'like'.", "I vary my tone, speed, and emphasis to make key ideas stand out."],
-        strategies: { low: ["Record 2 minutes of yourself and count your filler words. Awareness alone dramatically reduces them.", "Practice 'power pausing': after a key point, stop for 2 full seconds. Silence is more powerful than 'um'.", "Speak to the back row: imagine talking to the person furthest from you. This boosts volume and clarity naturally."], mid: ["Vary your pace: faster through background info, slower at key points. Contrast tells your audience what matters.", "Use downward inflection at the end of statements. Rising pitch sounds like uncertainty."], high: ["Great vocal delivery! Try strategic repetition — repeat your most important phrase twice, with a pause between.", "Experiment with whisper moments: dropping volume dramatically at a key point is often more powerful than raising it."] }
+        strategies: { low: ["Record 2 minutes of yourself and count filler words ('um', 'uh', 'like', 'so'). Awareness alone dramatically reduces them.", "Practice 'power pausing': after a key point, stop for 2 full seconds. Silence is far more powerful than any filler word.", "Speak to the back row: imagine talking to the person furthest from you. This boosts volume and clarity naturally."], mid: ["Vary your pace: faster through background info, slower at key points. The contrast tells your audience what matters.", "Use downward inflection at the end of statements. Rising pitch sounds like uncertainty."], high: ["Great vocal delivery! Try strategic repetition — repeat your most important phrase twice, with a pause between.", "Experiment with whisper moments: dropping volume dramatically at a key point is often more powerful than raising it."] },
+        weeklyDrills: ["Record 2 minutes of yourself talking about anything. Count your filler words. Target: cut them by half next time.", "Read any paragraph out loud today — pause for a full 2 seconds after every sentence. It feels long. That's the point.", "Say your three key points out loud as if projecting to the back of a large room. Really project!"],
+        checklistItems: { low: "Every time I feel like saying 'um', I will pause silently instead.", mid: "I'll project to the back row and slow down at my three key points.", high: "My vocal variety will do the emphasis. I won't need to say 'this is important'." }
       },
       { id: "body", name: "Body Language", color: "#BA7517", bg: "#FAEEDA", short: "Body Language", tagline: "Speaking with your whole body", desc: "How you use posture, movement, and gestures to support your message",
         questions: ["I maintain confident, open posture without pacing, rocking, or fidgeting nervously.", "I use clear, natural hand gestures to support and emphasize my words.", "When I move during a presentation, my movement is purposeful — not driven by nerves."],
-        strategies: { low: ["Find your 'home base': feet shoulder-width apart, weight balanced. Return here whenever you fidget.", "Keep hands in the 'power zone' (waist to shoulders). Hands in pockets signal nervousness.", "Film yourself for 2 minutes. Most people are shocked by their own nervous habits."], mid: ["Match gesture size to room size: small room = smaller gestures, large room = broader ones.", "Let gestures lead slightly ahead of words — begin as you start saying a key word."], high: ["Excellent physical presence! Try 'spatial anchoring': stand in specific spots for different sections.", "Practice 'stillness as power': standing completely still at a critical moment creates dramatic emphasis."] }
+        strategies: { low: ["Find your 'home base': feet shoulder-width apart, weight balanced, hands naturally ready. Return here whenever you fidget.", "Keep hands in the 'power zone' (waist to shoulders). Hands in pockets signal nervousness.", "Film yourself for 2 minutes. Most people are shocked by their own nervous habits."], mid: ["Match gesture size to room size: small classroom = smaller gestures, large room = broader ones.", "Let gestures lead slightly ahead of words — begin as you start saying a key word."], high: ["Excellent physical presence! Try 'spatial anchoring': stand in specific spots for different sections of your talk.", "Practice 'stillness as power': standing completely still at a critical moment creates dramatic emphasis."] },
+        weeklyDrills: ["Next time you're on the phone, practice standing in 'home base': feet shoulder-width, hands naturally at your sides, not fidgeting.", "Film 2 minutes of yourself presenting anything. Watch with the sound OFF — what does your body communicate?", "Assign one specific gesture to each of your 3 main points and practice it 10 times until it feels natural."],
+        checklistItems: { low: "I will find my home base at the start and return to it whenever I feel nervous.", mid: "My hands will stay in the power zone — between waist and shoulders.", high: "Every movement I make will be intentional. No nervous pacing." }
       },
       { id: "focus", name: "Focus & Conciseness", color: "#993556", bg: "#FBEAF0", short: "Focus", tagline: "Saying more with less", desc: "How directly and efficiently you express your core ideas",
         questions: ["I can answer questions directly and concisely without rambling or losing my main point.", "My presentations have one clear, memorable central message that everything connects to.", "I can express my core idea in one or two sentences when asked to summarize."],
-        strategies: { low: ["Use BLUF (Bottom Line Up Front): lead with your conclusion, then support it. Never make your audience wait.", "Practice timed 60-second answers. When time is up, stop — completely. This forces you to prioritize.", "Write your core message as ONE sentence before any presentation. Every point must connect back to it."], mid: ["Practice both 30-second and 2-minute versions of the same answer.", "Apply the 'So what?' test after every sentence. If you can't answer it, cut the sentence."], high: ["Great conciseness! Use the 'rule of three': group ideas into sets of three. Humans find triplets naturally memorable.", "Balance brevity with warmth — don't cut the human connection that makes communication meaningful."] }
+        strategies: { low: ["Use BLUF (Bottom Line Up Front): lead with your conclusion, then support it. Never make your audience wait.", "Practice timed 60-second answers. When time is up, stop — completely. This forces you to prioritize.", "Write your core message as ONE sentence before any presentation. Every point must connect back to it."], mid: ["Practice both 30-second and 2-minute versions of the same answer.", "Apply the 'So what?' test after every sentence. If you can't answer it, cut the sentence."], high: ["Great conciseness! Use the 'rule of three': group ideas into sets of three. Humans find triplets naturally memorable.", "Balance brevity with warmth — don't cut the human connection that makes communication meaningful."] },
+        weeklyDrills: ["Write your presentation's core message in exactly one sentence. Read it aloud. Does it land in under 10 seconds? Revise until it does.", "Set a timer for 60 seconds. Answer any question — stop the moment time is up, even mid-sentence. Practice 3 times.", "After any conversation today, ask yourself: did I stay on the main point, or did I wander? What would you cut next time?"],
+        checklistItems: { low: "I know my core message in one sentence. Everything I say will connect back to it.", mid: "If I start to ramble, I'll ask 'so what?' and get back on track immediately.", high: "I'll be brief. My audience will follow. Less is more." }
       }
     ];
 
     const LABELS = ["Never", "Rarely", "Sometimes", "Often", "Always"];
+
+    const TOPICS = [
+      "Describe a time you solved a difficult problem.",
+      "What is one thing technology cannot replace?",
+      "If you could redesign your school, what would you change?",
+      "What does it mean to be a good leader?",
+      "Describe a skill that took you a long time to learn.",
+      "What is the most important lesson you've learned this year?",
+      "If you could have dinner with any scientist, who and why?",
+      "What is something you believe that most people disagree with?",
+      "Describe a moment when you changed your mind about something.",
+      "What is one thing your generation does better than previous ones?",
+      "If you had unlimited resources, what problem would you solve?",
+      "What does creativity mean to you?",
+      "Describe a challenge that made you stronger.",
+      "What's the difference between intelligence and wisdom?",
+      "If you could teach one thing to everyone, what would it be?",
+      "What role should AI play in education?",
+      "Describe your ideal learning environment.",
+      "What habit has had the biggest positive impact on your life?",
+      "What is something most people misunderstand about you?",
+      "If you were giving a TED talk, what would it be about?",
+      "What does success look like to you in 10 years?",
+      "What is the hardest thing about communicating with others?",
+      "Describe a time you had to persuade someone.",
+      "What is one thing you wish you had learned earlier?",
+      "What makes a great presentation great?",
+      "What is the most important quality in a teammate?",
+      "Describe a book or idea that changed how you think.",
+      "What is something small that makes a big difference in daily life?",
+      "What would you tell your younger self?",
+      "Should students have more say in what they learn? Why?"
+    ];
 
     function avg(obj) {
       const v = Object.values(obj || {});
@@ -80,17 +130,17 @@
       const angle = i => (i * 2 * Math.PI / n) - Math.PI / 2;
       const pt = (r, i) => ({ x: cx + r * Math.cos(angle(i)), y: cy + r * Math.sin(angle(i)) });
       const dataPoints = DIMS.map((d, i) => pt((scores[d.id] / 5) * maxR, i));
-      const dataPath = dataPoints.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ') + 'Z';
+      const dataPath = dataPoints.map((p, i) => `${i===0?'M':'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ') + 'Z';
       return (
         <svg width={size} height={size} style={{ display: 'block', margin: '0 auto' }}>
           {[1,2,3,4,5].map(lv => {
-            const gpath = DIMS.map((_, i) => pt((lv/5)*maxR, i)).map((p,i) => `${i===0?'M':'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ') + 'Z';
-            return <path key={lv} d={gpath} fill="none" stroke="#e0ddd6" strokeWidth={1} />;
+            const gpath = DIMS.map((_,i) => pt((lv/5)*maxR,i)).map((p,i) => `${i===0?'M':'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')+'Z';
+            return <path key={lv} d={gpath} fill="none" stroke="#e0ddd6" strokeWidth={1}/>;
           })}
-          {DIMS.map((_, i) => { const p = pt(maxR, i); return <line key={i} x1={cx} y1={cy} x2={p.x} y2={p.y} stroke="#e0ddd6" strokeWidth={1} />; })}
-          <path d={dataPath} fill="#534AB7" fillOpacity={0.18} stroke="#534AB7" strokeWidth={2.5} strokeLinejoin="round" />
-          {dataPoints.map((p, i) => <circle key={i} cx={p.x} cy={p.y} r={4} fill="#534AB7" />)}
-          {DIMS.map((d, i) => { const p = pt(maxR+26, i); const a = p.x < cx-6 ? 'end' : p.x > cx+6 ? 'start' : 'middle'; return <text key={i} x={p.x} y={p.y} textAnchor={a} dominantBaseline="middle" fontSize={11} fontWeight="600" fill="#555">{d.short}</text>; })}
+          {DIMS.map((_,i) => { const p=pt(maxR,i); return <line key={i} x1={cx} y1={cy} x2={p.x} y2={p.y} stroke="#e0ddd6" strokeWidth={1}/>; })}
+          <path d={dataPath} fill="#534AB7" fillOpacity={0.18} stroke="#534AB7" strokeWidth={2.5} strokeLinejoin="round"/>
+          {dataPoints.map((p,i) => <circle key={i} cx={p.x} cy={p.y} r={4} fill="#534AB7"/>)}
+          {DIMS.map((d,i) => { const p=pt(maxR+26,i); const a=p.x<cx-6?'end':p.x>cx+6?'start':'middle'; return <text key={i} x={p.x} y={p.y} textAnchor={a} dominantBaseline="middle" fontSize={11} fontWeight="600" fill="#555">{d.short}</text>; })}
         </svg>
       );
     }
@@ -100,64 +150,64 @@
         <div style={{ maxWidth: 520, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 24 }}>
             <span className="tag" style={{ background: '#EEEDFE', color: '#534AB7', marginBottom: 14, display: 'inline-block' }}>English Presentation Skills</span>
-            <h1 style={{ fontSize: 26, fontWeight: 700, lineHeight: 1.25, marginBottom: 12 }}>Know your strengths.<br />Build your strategy.</h1>
+            <h1 style={{ fontSize: 26, fontWeight: 700, lineHeight: 1.25, marginBottom: 12 }}>Know your strengths.<br/>Build your strategy.</h1>
             <p style={{ fontSize: 15, color: '#555', lineHeight: 1.7 }}>This self-assessment helps you identify what you do well and where to focus your practice — before you step in front of an audience.</p>
           </div>
           <div className="card" style={{ marginBottom: 14, background: '#f5f4f0', border: 'none' }}>
             <p style={{ fontSize: 12, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>6 areas you'll assess</p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-              {DIMS.map(d => <div key={d.id} style={{ display: 'flex', alignItems: 'center', gap: 8 }}><div style={{ width: 8, height: 8, borderRadius: '50%', background: d.color, flexShrink: 0 }} /><span style={{ fontSize: 13, color: '#444' }}>{d.name}</span></div>)}
+              {DIMS.map(d => <div key={d.id} style={{ display:'flex', alignItems:'center', gap:8 }}><div style={{ width:8, height:8, borderRadius:'50%', background:d.color, flexShrink:0 }}/><span style={{ fontSize:13, color:'#444' }}>{d.name}</span></div>)}
             </div>
           </div>
-          <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+          <div style={{ display:'flex', gap:8, marginBottom:20 }}>
             {[["18","questions"],["6","skill areas"],["~5 min","to complete"]].map(([v,l]) => (
-              <div key={l} className="card" style={{ flex: 1, textAlign: 'center', padding: '12px 8px' }}>
-                <div style={{ fontSize: 20, fontWeight: 700 }}>{v}</div>
-                <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>{l}</div>
+              <div key={l} className="card" style={{ flex:1, textAlign:'center', padding:'12px 8px' }}>
+                <div style={{ fontSize:20, fontWeight:700 }}>{v}</div>
+                <div style={{ fontSize:12, color:'#888', marginTop:2 }}>{l}</div>
               </div>
             ))}
           </div>
-          <p style={{ fontSize: 13, color: '#888', textAlign: 'center', marginBottom: 14, lineHeight: 1.6 }}>Answer honestly — the more accurate your self-assessment, the more useful your strategies will be.</p>
+          <p style={{ fontSize:13, color:'#888', textAlign:'center', marginBottom:14, lineHeight:1.6 }}>Answer honestly — the more accurate your self-assessment, the more useful your strategies will be.</p>
           <button className="btn-primary" onClick={onStart}>Start assessment →</button>
         </div>
       );
     }
 
     function QuestionScreen({ dim, step, answers, onAnswer, onBack, onNext, canNext, isLast }) {
-      const pct = ((step - 1) / 6) * 100;
+      const pct = ((step-1)/6)*100;
       return (
-        <div style={{ maxWidth: 520, margin: '0 auto' }}>
-          <div style={{ marginBottom: 20 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#888', marginBottom: 6 }}><span>Area {step} of 6</span><span>{Math.round(pct)}% done</span></div>
-            <div className="progress-bar"><div className="progress-fill" style={{ width: `${pct}%`, background: dim.color }} /></div>
+        <div style={{ maxWidth:520, margin:'0 auto' }}>
+          <div style={{ marginBottom:20 }}>
+            <div style={{ display:'flex', justifyContent:'space-between', fontSize:12, color:'#888', marginBottom:6 }}><span>Area {step} of 6</span><span>{Math.round(pct)}% done</span></div>
+            <div className="progress-bar"><div className="progress-fill" style={{ width:`${pct}%`, background:dim.color }}/></div>
           </div>
-          <div style={{ background: dim.bg, border: `1px solid ${dim.color}33`, borderRadius: 12, padding: '14px 18px', marginBottom: 20 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: dim.color, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>{dim.tagline}</div>
-            <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 4 }}>{dim.name}</h2>
-            <p style={{ fontSize: 13, color: '#555', lineHeight: 1.5 }}>{dim.desc}</p>
+          <div style={{ background:dim.bg, border:`1px solid ${dim.color}33`, borderRadius:12, padding:'14px 18px', marginBottom:20 }}>
+            <div style={{ fontSize:11, fontWeight:700, color:dim.color, textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:2 }}>{dim.tagline}</div>
+            <h2 style={{ fontSize:20, fontWeight:700, marginBottom:4 }}>{dim.name}</h2>
+            <p style={{ fontSize:13, color:'#555', lineHeight:1.5 }}>{dim.desc}</p>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 24 }}>
-            {dim.questions.map((q, qi) => (
+          <div style={{ display:'flex', flexDirection:'column', gap:14, marginBottom:24 }}>
+            {dim.questions.map((q,qi) => (
               <div key={qi} className="card">
-                <p style={{ fontSize: 14, lineHeight: 1.65, marginBottom: 14 }}><span style={{ color: '#aaa', fontSize: 12, marginRight: 6 }}>Q{qi+1}</span>{q}</p>
-                <div style={{ display: 'flex', gap: 6 }}>
-                  {LABELS.map((lbl, i) => { const val = i+1, sel = answers[qi] === val; return (
-                    <button key={i} className={`option-btn${sel?' selected':''}`} onClick={() => onAnswer(qi, val)} style={sel ? { borderColor: dim.color, background: dim.color+'14' } : {}}>
-                      <span style={{ fontSize: 14, fontWeight: 700, color: sel ? dim.color : '#333' }}>{val}</span>
-                      <span style={{ fontSize: 9, color: sel ? dim.color : '#aaa', textAlign: 'center', lineHeight: 1.2 }}>{lbl}</span>
+                <p style={{ fontSize:14, lineHeight:1.65, marginBottom:14 }}><span style={{ color:'#aaa', fontSize:12, marginRight:6 }}>Q{qi+1}</span>{q}</p>
+                <div style={{ display:'flex', gap:6 }}>
+                  {LABELS.map((lbl,i) => { const val=i+1, sel=answers[qi]===val; return (
+                    <button key={i} className={`option-btn${sel?' selected':''}`} onClick={()=>onAnswer(qi,val)} style={sel?{borderColor:dim.color,background:dim.color+'14'}:{}}>
+                      <span style={{ fontSize:14, fontWeight:700, color:sel?dim.color:'#333' }}>{val}</span>
+                      <span style={{ fontSize:9, color:sel?dim.color:'#aaa', textAlign:'center', lineHeight:1.2 }}>{lbl}</span>
                     </button>
                   ); })}
                 </div>
               </div>
             ))}
           </div>
-          <div style={{ display: 'flex', gap: 10 }}>
-            {step > 1 && <button className="btn-ghost" onClick={onBack}>← Back</button>}
-            <button className="btn-primary" onClick={onNext} disabled={!canNext} style={{ flex: 1, background: canNext ? dim.color : undefined }}>
+          <div style={{ display:'flex', gap:10 }}>
+            {step>1 && <button className="btn-ghost" onClick={onBack}>← Back</button>}
+            <button className="btn-primary" onClick={onNext} disabled={!canNext} style={{ flex:1, background:canNext?dim.color:undefined }}>
               {isLast ? 'Almost done →' : 'Next area →'}
             </button>
           </div>
-          {!canNext && <p style={{ textAlign: 'center', fontSize: 12, color: '#aaa', marginTop: 8 }}>Answer all 3 questions to continue</p>}
+          {!canNext && <p style={{ textAlign:'center', fontSize:12, color:'#aaa', marginTop:8 }}>Answer all 3 questions to continue</p>}
         </div>
       );
     }
@@ -165,17 +215,17 @@
     function NameScreen({ onNext }) {
       const [name, setName] = useState('');
       return (
-        <div style={{ maxWidth: 520, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 32 }}>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>🎉</div>
-            <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 10 }}>All done!</h2>
-            <p style={{ fontSize: 15, color: '#555', lineHeight: 1.7 }}>Enter your name before seeing your results.<br />Your scores will be saved for your teacher.</p>
+        <div style={{ maxWidth:520, margin:'0 auto' }}>
+          <div style={{ textAlign:'center', marginBottom:32 }}>
+            <div style={{ fontSize:48, marginBottom:16 }}>🎉</div>
+            <h2 style={{ fontSize:24, fontWeight:700, marginBottom:10 }}>All done!</h2>
+            <p style={{ fontSize:15, color:'#555', lineHeight:1.7 }}>Enter your name before seeing your results.<br/>Your scores will be saved for your teacher.</p>
           </div>
-          <div className="card" style={{ marginBottom: 16 }}>
-            <label style={{ fontSize: 13, fontWeight: 600, color: '#555', display: 'block', marginBottom: 10 }}>Your name (이름)</label>
-            <input type="text" placeholder="e.g. Kim Jiyeon" value={name} onChange={e => setName(e.target.value)} onKeyDown={e => e.key === 'Enter' && name.trim() && onNext(name.trim())} autoFocus />
+          <div className="card" style={{ marginBottom:16 }}>
+            <label style={{ fontSize:13, fontWeight:600, color:'#555', display:'block', marginBottom:10 }}>Your name (이름)</label>
+            <input type="text" placeholder="e.g. Kim Jiyeon" value={name} onChange={e=>setName(e.target.value)} onKeyDown={e=>e.key==='Enter'&&name.trim()&&onNext(name.trim())} autoFocus/>
           </div>
-          <button className="btn-primary" disabled={!name.trim()} onClick={() => onNext(name.trim())}>See my results →</button>
+          <button className="btn-primary" disabled={!name.trim()} onClick={()=>onNext(name.trim())}>See my results →</button>
         </div>
       );
     }
@@ -185,21 +235,21 @@
       const tips = dim.strategies[getLevel(dim.score)];
       const style = ls(dim.score);
       return (
-        <div className="card" style={{ borderLeft: `3px solid ${dim.color}`, borderRadius: 10 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div className="card" style={{ borderLeft:`3px solid ${dim.color}`, borderRadius:10 }}>
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
             <div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: dim.color, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>{type === 'improve' ? 'Focus area' : 'Strength'}</div>
-              <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>{dim.name}</div>
-              <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 5, background: style.bg, color: style.color, fontWeight: 600 }}>{dim.score.toFixed(1)}/5 · {getLabel(dim.score)}</span>
+              <div style={{ fontSize:11, fontWeight:700, color:dim.color, textTransform:'uppercase', letterSpacing:'0.05em', marginBottom:2 }}>{type==='improve'?'Focus area':'Strength'}</div>
+              <div style={{ fontSize:16, fontWeight:700, marginBottom:4 }}>{dim.name}</div>
+              <span style={{ fontSize:11, padding:'3px 8px', borderRadius:5, background:style.bg, color:style.color, fontWeight:600 }}>{dim.score.toFixed(1)}/5 · {getLabel(dim.score)}</span>
             </div>
-            <button className="btn-ghost" onClick={() => setOpen(o => !o)} style={{ fontSize: 12, padding: '6px 10px', flexShrink: 0, marginLeft: 8 }}>{open ? 'Hide' : 'Strategies'}</button>
+            <button className="btn-ghost" onClick={()=>setOpen(o=>!o)} style={{ fontSize:12, padding:'6px 10px', flexShrink:0, marginLeft:8 }}>{open?'Hide':'Strategies'}</button>
           </div>
           {open && (
-            <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {tips.map((tip, i) => (
-                <div key={i} style={{ display: 'flex', gap: 10, background: dim.bg, borderRadius: 8, padding: '10px 12px' }}>
-                  <div style={{ width: 20, height: 20, borderRadius: '50%', background: dim.color, color: '#fff', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>{i+1}</div>
-                  <p style={{ fontSize: 13, lineHeight: 1.65, color: '#222' }}>{tip}</p>
+            <div style={{ marginTop:14, display:'flex', flexDirection:'column', gap:10 }}>
+              {tips.map((tip,i) => (
+                <div key={i} style={{ display:'flex', gap:10, background:dim.bg, borderRadius:8, padding:'10px 12px' }}>
+                  <div style={{ width:20, height:20, borderRadius:'50%', background:dim.color, color:'#fff', fontSize:11, fontWeight:700, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, marginTop:1 }}>{i+1}</div>
+                  <p style={{ fontSize:13, lineHeight:1.65, color:'#222' }}>{tip}</p>
                 </div>
               ))}
             </div>
@@ -208,71 +258,248 @@
       );
     }
 
-    function Results({ scores, name, onRestart }) {
+    function ThisWeekFocus({ dim }) {
+      return (
+        <div style={{ background:dim.bg, border:`1.5px solid ${dim.color}44`, borderRadius:12, padding:'18px 20px', marginBottom:16 }}>
+          <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:12 }}>
+            <div style={{ width:10, height:10, borderRadius:'50%', background:dim.color }}/>
+            <span style={{ fontSize:11, fontWeight:700, color:dim.color, textTransform:'uppercase', letterSpacing:'0.06em' }}>This week's focus</span>
+          </div>
+          <h3 style={{ fontSize:17, fontWeight:700, marginBottom:4 }}>{dim.name}</h3>
+          <p style={{ fontSize:13, color:'#555', marginBottom:14 }}>Your lowest-scoring area — small daily practice here will compound fast.</p>
+          <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+            {dim.weeklyDrills.map((drill,i) => (
+              <div key={i} style={{ display:'flex', gap:10, background:'#fff', borderRadius:8, padding:'10px 12px', border:`0.5px solid ${dim.color}33` }}>
+                <div style={{ width:22, height:22, borderRadius:6, background:dim.color, color:'#fff', fontSize:12, fontWeight:700, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                  {['M','W','F'][i]}
+                </div>
+                <p style={{ fontSize:13, lineHeight:1.6, color:'#222' }}>{drill}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    function PracticeMode({ weakestDim, onBack }) {
+      const [topicIdx, setTopicIdx] = useState(() => Math.floor(Math.random() * TOPICS.length));
+      const [timeLeft, setTimeLeft] = useState(60);
+      const [running, setRunning] = useState(false);
+      const [done, setDone] = useState(false);
+
+      useEffect(() => {
+        if (!running) return;
+        if (timeLeft === 0) { setRunning(false); setDone(true); return; }
+        const id = setInterval(() => setTimeLeft(t => t-1), 1000);
+        return () => clearInterval(id);
+      }, [running, timeLeft]);
+
+      const newTopic = () => {
+        let idx;
+        do { idx = Math.floor(Math.random()*TOPICS.length); } while (idx === topicIdx);
+        setTopicIdx(idx);
+        setTimeLeft(60);
+        setRunning(false);
+        setDone(false);
+      };
+
+      const reset = () => { setTimeLeft(60); setRunning(false); setDone(false); };
+
+      const pct = (timeLeft/60)*100;
+      const timerColor = timeLeft > 20 ? '#534AB7' : timeLeft > 10 ? '#BA7517' : '#D85A30';
+
+      return (
+        <div style={{ maxWidth:520, margin:'0 auto' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:24 }}>
+            <button className="btn-ghost" onClick={onBack} style={{ padding:'8px 14px' }}>← Back</button>
+            <div>
+              <div style={{ fontSize:11, fontWeight:700, color:'#888', textTransform:'uppercase', letterSpacing:'0.06em' }}>Practice Mode</div>
+              <h2 style={{ fontSize:20, fontWeight:700 }}>Spontaneous Speaking</h2>
+            </div>
+          </div>
+
+          <div className="card" style={{ marginBottom:14 }}>
+            <div style={{ fontSize:11, fontWeight:700, color:'#888', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:8 }}>Your topic</div>
+            <p style={{ fontSize:18, fontWeight:700, color:'#1a1a1a', lineHeight:1.4, marginBottom:12 }}>"{TOPICS[topicIdx]}"</p>
+            <button onClick={newTopic} style={{ fontSize:12, color:'#888', background:'none', border:'none', padding:0, textDecoration:'underline', cursor:'pointer' }}>Get a different topic</button>
+          </div>
+
+          <div className="card" style={{ marginBottom:14, background: weakestDim.bg, border:`1px solid ${weakestDim.color}33` }}>
+            <div style={{ fontSize:11, fontWeight:700, color:weakestDim.color, textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:4 }}>Focus on this while you speak</div>
+            <p style={{ fontSize:14, color:'#333', lineHeight:1.6 }}>
+              <strong>{weakestDim.name}</strong> — {
+                getLevel(weakestDim.score) === 'low'
+                  ? weakestDim.strategies.low[0]
+                  : getLevel(weakestDim.score) === 'mid'
+                  ? weakestDim.strategies.mid[0]
+                  : weakestDim.strategies.high[0]
+              }
+            </p>
+          </div>
+
+          <div className="card" style={{ marginBottom:14 }}>
+            <div style={{ fontSize:11, fontWeight:700, color:'#888', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:10 }}>Structure guide</div>
+            {[['What', 'State your main point or answer.'], ['So What', 'Explain why it matters — to you or your audience.'], ['Now What', 'Say what should happen next, or how this applies.']].map(([label, hint]) => (
+              <div key={label} style={{ display:'flex', gap:10, marginBottom:8 }}>
+                <span style={{ fontSize:12, fontWeight:700, color:'#534AB7', width:56, flexShrink:0, paddingTop:2 }}>{label}</span>
+                <span style={{ fontSize:13, color:'#555', lineHeight:1.5 }}>{hint}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="card" style={{ textAlign:'center', marginBottom:14 }}>
+            <div style={{ fontSize:72, fontWeight:700, color:timerColor, lineHeight:1, marginBottom:8 }}>{timeLeft}</div>
+            <div style={{ fontSize:12, color:'#888', marginBottom:14 }}>seconds</div>
+            <div className="progress-bar" style={{ marginBottom:16, height:6 }}>
+              <div className="progress-fill" style={{ width:`${pct}%`, background:timerColor, transition:'width 1s linear' }}/>
+            </div>
+            {done ? (
+              <div>
+                <p style={{ fontSize:15, fontWeight:700, color:'#1D9E75', marginBottom:14 }}>Time's up! Great work.</p>
+                <div style={{ display:'flex', gap:10 }}>
+                  <button className="btn-ghost" onClick={reset} style={{ flex:1 }}>Try again</button>
+                  <button className="btn-primary" onClick={newTopic} style={{ flex:1 }}>New topic →</button>
+                </div>
+              </div>
+            ) : running ? (
+              <button className="btn-ghost" onClick={()=>{setRunning(false);}} style={{ width:'100%' }}>Pause</button>
+            ) : (
+              <button className="btn-primary" onClick={()=>setRunning(true)}>{timeLeft===60?'Start speaking':'Resume'}</button>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    function PreChecklist({ allScores, onBack }) {
+      const sorted = [...allScores].sort((a,b) => a.score-b.score);
+      const picks = [sorted[0], sorted[1], sorted[2], sorted[3], sorted[sorted.length-1]];
+      const items = picks.map(d => ({ dim:d, text: d.checklistItems[getLevel(d.score)] }));
+      const [checked, setChecked] = useState({});
+      const toggle = i => setChecked(prev => ({ ...prev, [i]: !prev[i] }));
+      const doneCount = Object.values(checked).filter(Boolean).length;
+      const allChecked = doneCount === items.length;
+
+      return (
+        <div style={{ maxWidth:520, margin:'0 auto' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:24 }}>
+            <button className="btn-ghost" onClick={onBack} style={{ padding:'8px 14px' }}>← Back</button>
+            <div>
+              <div style={{ fontSize:11, fontWeight:700, color:'#888', textTransform:'uppercase', letterSpacing:'0.06em' }}>Pre-Presentation</div>
+              <h2 style={{ fontSize:20, fontWeight:700 }}>Your Checklist</h2>
+            </div>
+          </div>
+
+          <div className="card" style={{ marginBottom:14, background:'#f5f4f0', border:'none' }}>
+            <p style={{ fontSize:13, color:'#555', lineHeight:1.65 }}>Based on your profile, these are the five intentions that will make the biggest difference in your next presentation. Check each one when you feel ready.</p>
+          </div>
+
+          <div className="card" style={{ marginBottom:14 }}>
+            {items.map((item,i) => (
+              <div key={i} className="check-row" onClick={()=>toggle(i)} style={{ cursor:'pointer' }}>
+                <div className={`checkbox${checked[i]?' checked':''}`}>
+                  {checked[i] && <svg width="12" height="10" viewBox="0 0 12 10" fill="none"><path d="M1 5L4.5 8.5L11 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                </div>
+                <div>
+                  <div style={{ fontSize:11, fontWeight:700, color:item.dim.color, textTransform:'uppercase', letterSpacing:'0.05em', marginBottom:2 }}>{item.dim.short}</div>
+                  <p style={{ fontSize:14, color: checked[i] ? '#aaa' : '#1a1a1a', lineHeight:1.55, textDecoration: checked[i] ? 'line-through' : 'none', transition:'all 0.2s' }}>{item.text}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ marginBottom:16 }}>
+            <div style={{ display:'flex', justifyContent:'space-between', fontSize:12, color:'#888', marginBottom:6 }}>
+              <span>Readiness</span><span>{doneCount}/{items.length} checked</span>
+            </div>
+            <div className="progress-bar" style={{ height:6 }}>
+              <div className="progress-fill" style={{ width:`${(doneCount/items.length)*100}%`, background: allChecked ? '#1D9E75' : '#534AB7' }}/>
+            </div>
+          </div>
+
+          {allChecked && (
+            <div style={{ background:'#E1F5EE', border:'1px solid #5DCAA5', borderRadius:12, padding:'16px 20px', marginBottom:16, textAlign:'center' }}>
+              <div style={{ fontSize:24, marginBottom:6 }}>✓</div>
+              <p style={{ fontSize:15, fontWeight:700, color:'#0F6E56', marginBottom:4 }}>You're ready to present!</p>
+              <p style={{ fontSize:13, color:'#0F6E56' }}>Trust your preparation and go for it.</p>
+            </div>
+          )}
+
+          <button className="btn-ghost" onClick={()=>setChecked({})} style={{ width:'100%', textAlign:'center' }}>↺ Reset checklist</button>
+        </div>
+      );
+    }
+
+    function Results({ scores, name, onRestart, onPractice, onChecklist }) {
       const [tab, setTab] = useState('improve');
       const [status, setStatus] = useState('sending');
 
       const allScores = DIMS.map(d => ({ ...d, score: avg(scores[d.id]) }));
-      const sorted = [...allScores].sort((a, b) => a.score - b.score);
+      const sorted = [...allScores].sort((a,b) => a.score-b.score);
       const radarScores = {};
       DIMS.forEach(d => { radarScores[d.id] = avg(scores[d.id]); });
+      const weakest = sorted[0];
 
       useEffect(() => {
         const payload = { name };
         DIMS.forEach(d => { payload[d.id] = avg(scores[d.id]); });
-        fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
-          .then(() => setStatus('done'))
-          .catch(() => setStatus('error'));
+        fetch(SCRIPT_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) })
+          .then(()=>setStatus('done')).catch(()=>setStatus('error'));
       }, []);
 
-      const statusInfo = {
-        sending: { bg: '#f0ede8', color: '#888', icon: '⏳', text: 'Saving your results...' },
-        done:    { bg: '#E1F5EE', color: '#0F6E56', icon: '✓', text: 'Results saved to teacher' },
-        error:   { bg: '#FAECE7', color: '#712B13', icon: '⚠', text: 'Could not save — check connection' }
-      }[status];
+      const si = { sending:{bg:'#f0ede8',color:'#888',icon:'⏳',text:'Saving your results...'}, done:{bg:'#E1F5EE',color:'#0F6E56',icon:'✓',text:'Results saved to teacher'}, error:{bg:'#FAECE7',color:'#712B13',icon:'⚠',text:'Could not save — check connection'} }[status];
 
       return (
-        <div style={{ maxWidth: 520, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 20 }}>
-            <span className="tag" style={{ background: '#E1F5EE', color: '#0F6E56', marginBottom: 10, display: 'inline-block' }}>Your results</span>
-            <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8 }}>{name}'s speaking profile</h2>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, padding: '5px 14px', borderRadius: 20, background: statusInfo.bg, color: statusInfo.color }}>
-              <span>{statusInfo.icon}</span>{statusInfo.text}
+        <div style={{ maxWidth:520, margin:'0 auto' }}>
+          <div style={{ textAlign:'center', marginBottom:20 }}>
+            <span className="tag" style={{ background:'#E1F5EE', color:'#0F6E56', marginBottom:10, display:'inline-block' }}>Your results</span>
+            <h2 style={{ fontSize:22, fontWeight:700, marginBottom:8 }}>{name}'s speaking profile</h2>
+            <div style={{ display:'inline-flex', alignItems:'center', gap:6, fontSize:12, padding:'5px 14px', borderRadius:20, background:si.bg, color:si.color }}>
+              <span>{si.icon}</span>{si.text}
             </div>
           </div>
 
-          <div className="card" style={{ marginBottom: 16, padding: '20px 16px' }}>
-            <RadarViz scores={radarScores} />
+          <div className="card" style={{ marginBottom:16, padding:'20px 16px' }}>
+            <RadarViz scores={radarScores}/>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 20 }}>
-            {allScores.map(d => { const s = ls(d.score); return (
-              <div key={d.id} className="card" style={{ padding: '10px 12px' }}>
-                <div style={{ fontSize: 20, fontWeight: 700, color: d.color }}>{d.score.toFixed(1)}<span style={{ fontSize: 12, fontWeight: 400, color: '#aaa' }}>/5</span></div>
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#333', margin: '2px 0 5px', lineHeight: 1.3 }}>{d.short}</div>
-                <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 4, background: s.bg, color: s.color }}>{getLabel(d.score)}</span>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8, marginBottom:20 }}>
+            {allScores.map(d => { const s=ls(d.score); return (
+              <div key={d.id} className="card" style={{ padding:'10px 12px' }}>
+                <div style={{ fontSize:20, fontWeight:700, color:d.color }}>{d.score.toFixed(1)}<span style={{ fontSize:12, fontWeight:400, color:'#aaa' }}>/5</span></div>
+                <div style={{ fontSize:12, fontWeight:600, color:'#333', margin:'2px 0 5px', lineHeight:1.3 }}>{d.short}</div>
+                <span style={{ fontSize:10, fontWeight:600, padding:'2px 7px', borderRadius:4, background:s.bg, color:s.color }}>{getLabel(d.score)}</span>
               </div>
             ); })}
           </div>
 
-          <div style={{ display: 'flex', borderRadius: 10, overflow: 'hidden', border: '0.5px solid #ddd', marginBottom: 16 }}>
+          <ThisWeekFocus dim={weakest}/>
+
+          <div style={{ display:'flex', borderRadius:10, overflow:'hidden', border:'0.5px solid #ddd', marginBottom:16 }}>
             {[['improve','Priority strategies'],['strengths','Your strengths']].map(([id,label]) => (
-              <button key={id} className={`tab-btn${tab===id?' active':''}`} onClick={() => setTab(id)}>{label}</button>
+              <button key={id} className={`tab-btn${tab===id?' active':''}`} onClick={()=>setTab(id)}>{label}</button>
             ))}
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 20 }}>
-            {(tab === 'improve' ? sorted.slice(0,2) : sorted.slice(-2).reverse()).map(d => (
-              <StrategyCard key={d.id} dim={d} type={tab === 'improve' ? 'improve' : 'strength'} />
+          <div style={{ display:'flex', flexDirection:'column', gap:14, marginBottom:24 }}>
+            {(tab==='improve'?sorted.slice(0,2):sorted.slice(-2).reverse()).map(d => (
+              <StrategyCard key={d.id} dim={d} type={tab==='improve'?'improve':'strength'}/>
             ))}
           </div>
 
-          <div className="card" style={{ background: '#f5f4f0', border: 'none', marginBottom: 14 }}>
-            <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 6 }}>Next steps</p>
-            <p style={{ fontSize: 13, color: '#555', lineHeight: 1.65 }}>Choose one strategy from your priority area and practice it deliberately this week. After your next presentation, retake this assessment to track your progress.</p>
+          <p style={{ fontSize:12, fontWeight:700, color:'#888', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:10 }}>Practice tools</p>
+          <div style={{ display:'flex', flexDirection:'column', gap:10, marginBottom:24 }}>
+            <button className="btn-outline" onClick={onPractice}
+              style={{ border:`1.5px solid #534AB7`, color:'#534AB7', display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
+              <span>⏱</span> Practice Mode — 60-sec spontaneous speaking
+            </button>
+            <button className="btn-outline" onClick={onChecklist}
+              style={{ border:`1.5px solid #1D9E75`, color:'#1D9E75', display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
+              <span>✓</span> Pre-Presentation Checklist
+            </button>
           </div>
 
-          <button className="btn-ghost" onClick={onRestart} style={{ width: '100%', textAlign: 'center' }}>↺ Retake assessment</button>
+          <button className="btn-ghost" onClick={onRestart} style={{ width:'100%', textAlign:'center' }}>↺ Retake assessment</button>
         </div>
       );
     }
@@ -281,18 +508,26 @@
       const [step, setStep] = useState(0);
       const [answers, setAnswers] = useState({});
       const [name, setName] = useState('');
-      const setAns = (dimId, qi, val) => setAnswers(prev => ({ ...prev, [dimId]: { ...(prev[dimId]||{}), [qi]: val } }));
+      const [mode, setMode] = useState(null); // null | 'practice' | 'checklist'
 
-      if (step === 0) return <Welcome onStart={() => setStep(1)} />;
-      if (step >= 1 && step <= 6) {
-        const dim = DIMS[step-1], da = answers[dim.id]||{};
-        return <QuestionScreen dim={dim} step={step} answers={da} onAnswer={(qi,val)=>setAns(dim.id,qi,val)} onBack={()=>setStep(s=>s-1)} onNext={()=>setStep(s=>s+1)} canNext={Object.keys(da).length===3} isLast={step===6} />;
+      const setAns = (dimId,qi,val) => setAnswers(prev=>({...prev,[dimId]:{...(prev[dimId]||{}),[qi]:val}}));
+      const allScores = DIMS.map(d => ({ ...d, score: avg(answers[d.id]) }));
+
+      if (step===0) return <Welcome onStart={()=>setStep(1)}/>;
+      if (step>=1&&step<=6) {
+        const dim=DIMS[step-1], da=answers[dim.id]||{};
+        return <QuestionScreen dim={dim} step={step} answers={da} onAnswer={(qi,val)=>setAns(dim.id,qi,val)} onBack={()=>setStep(s=>s-1)} onNext={()=>setStep(s=>s+1)} canNext={Object.keys(da).length===3} isLast={step===6}/>;
       }
-      if (step === 7) return <NameScreen onNext={n => { setName(n); setStep(8); }} />;
-      return <Results scores={answers} name={name} onRestart={() => { setStep(0); setAnswers({}); setName(''); }} />;
+      if (step===7) return <NameScreen onNext={n=>{setName(n);setStep(8);}}/>;
+
+      if (step===8) {
+        if (mode==='practice') return <PracticeMode weakestDim={[...allScores].sort((a,b)=>a.score-b.score)[0]} onBack={()=>setMode(null)}/>;
+        if (mode==='checklist') return <PreChecklist allScores={allScores} onBack={()=>setMode(null)}/>;
+        return <Results scores={answers} name={name} onRestart={()=>{setStep(0);setAnswers({});setName('');setMode(null);}} onPractice={()=>setMode('practice')} onChecklist={()=>setMode('checklist')}/>;
+      }
     }
 
-    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
   </script>
 </body>
 </html>
